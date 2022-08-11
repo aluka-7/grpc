@@ -35,7 +35,7 @@ type rpcEngine struct {
 }
 
 func (r *rpcEngine) Server(monitor bool, app, group, path string, handlers ...grpc.UnaryServerInterceptor) (*Server, *RpcServerConfig) {
-	scc := &serverConfigChanged{path: fmt.Sprintf("/fc/%s/%s/%s", app, group, path), handlers: handlers}
+	scc := &serverConfigChanged{path: fmt.Sprintf("/system/%s/%s/%s", app, group, path), handlers: handlers}
 	r.cfg.Get(app, group, "", []string{path}, scc)
 	if monitor {
 		go metrics()
@@ -75,7 +75,7 @@ func (scc *serverConfigChanged) Server() (*Server, *RpcServerConfig) {
 	return scc.server, scc.cfg
 }
 func (r *rpcEngine) ClientConn(systemId string, handlers ...grpc.UnaryClientInterceptor) (*grpc.ClientConn, *RpcClientConfig) {
-	ccc := &clientConfigChanged{path: fmt.Sprintf("/fc/base/rpc/%s", systemId), handlers: handlers}
+	ccc := &clientConfigChanged{path: fmt.Sprintf("/system/base/rpc/%s", systemId), handlers: handlers}
 	r.cfg.Get("base", "rpc", "", []string{systemId}, ccc)
 	client, cfg := ccc.Client()
 	conn, err := client.Dial(context.Background(), cfg.Target, []string{r.systemId})

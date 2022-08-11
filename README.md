@@ -23,7 +23,7 @@ type ServerConfig struct {
 
 对应zk中的信息:
 
-地址为: /fc/base/app/9999
+地址为: /system/base/app/9999
 
 ```json
 '{"network":"tcp","address":"127.0.0.1:9090","timeout":"2s","idleTimeout":"2s","maxLife":"2s","closeWait":"2s","keepaliveInterval":"2s","keepaliveTimeout":"2s","limit":{"Enabled":false,"Window":0,"WinBucket":0,"Rule":"","Debug":false,"CPUThreshold":0},"enableLog":true}'
@@ -50,13 +50,13 @@ type ClientConfig struct {
 
 对应zk中的配置信息
 
-### 客户端基础信息地址为: /fc/base/rpc/client/base
+### 客户端基础信息地址为: /system/**base**/rpc/client/base
 
 ```json
 {"dial":"10s","timeout":"10s","breaker":{"switchOff":false,"failureRate":0.8,"window":"1s"},"nonBlock":false,"keepAliveInterval":"10s","keepAliveTimeout":"10s","keepAliveWithoutStream":true,"enableLog":true}
 ```
 
-### 客户端连接地址:/fc/base/rpc/client/999
+### 客户端连接地址:/system/base/rpc/client/999
 
 ```json
 127.0.0.1:9090
@@ -79,4 +79,4 @@ type ClientConfig struct {
 
 # 使用
 
-本身不提供整套`trace`数据方案，但在`git.forchange.cn/framework/trace/report.go`内声明了`repoter`接口，可以简单的集成现有开源系统，比如：`zipkin`和`jaeger`。
+本身不提供整套`trace`数据方案，但在`report.go`内声明了`repoter`接口，可以简单的集成现有开源系统，比如：`zipkin`和`jaeger`。
