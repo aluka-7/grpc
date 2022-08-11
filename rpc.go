@@ -25,7 +25,7 @@ type RpcEngine interface {
 }
 
 func Engine(systemId string, cfg configuration.Configuration) RpcEngine {
-	fmt.Println("Loading FoChange Rpc Engine ver:1.1.0")
+	fmt.Println("Loading Rpc Engine")
 	return &rpcEngine{cfg: cfg, systemId: systemId}
 }
 
