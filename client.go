@@ -21,7 +21,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// rpc客户端配置.
+// ClientConfig rpc客户端配置.
 type ClientConfig struct {
 	Dial                utils.Duration           `json:"dial"`
 	Timeout             utils.Duration           `json:"timeout"`
@@ -33,7 +33,7 @@ type ClientConfig struct {
 	EnableLog           bool                     `json:"enableLog"`
 }
 
-// 客户端是框架的客户端实例,它包含ctx,opt和拦截器。
+// Client 客户端是框架的客户端实例,它包含ctx,opt和拦截器。
 // 使用NewClient()创建Client的实例.
 type Client struct {
 	conf  *ClientConfig
@@ -43,13 +43,13 @@ type Client struct {
 	handlers []grpc.UnaryClientInterceptor
 }
 
-// 超时选项.
+// TimeoutCallOption 超时选项.
 type TimeoutCallOption struct {
 	*grpc.EmptyCallOption
 	Timeout time.Duration
 }
 
-// 可以覆盖ctx中的超时和配置文件中的超时
+// WithTimeoutCallOption 可以覆盖ctx中的超时和配置文件中的超时
 func WithTimeoutCallOption(timeout time.Duration) *TimeoutCallOption {
 	return &TimeoutCallOption{&grpc.EmptyCallOption{}, timeout}
 }
@@ -122,12 +122,12 @@ func (c *Client) handle(caller []string) grpc.UnaryClientInterceptor {
 	}
 }
 
-// 创建rpc连接.
+// NewConn 创建rpc连接.
 func NewConn(target string, conf *ClientConfig, caller []string, opt ...grpc.DialOption) (*grpc.ClientConn, error) {
 	return NewClient(conf, opt...).Dial(context.Background(), target, caller, opt...)
 }
 
-// NewClient返回带有默认客户端拦截器的新的空白Client实例.
+// NewClient 返回带有默认客户端拦截器的新的空白Client实例.
 // opt可用于添加rpc拨号选项.
 func NewClient(conf *ClientConfig, opt ...grpc.DialOption) *Client {
 	c := new(Client)
@@ -138,7 +138,7 @@ func NewClient(conf *ClientConfig, opt ...grpc.DialOption) *Client {
 	return c
 }
 
-// 热重载客户端配置
+// SetConfig 热重载客户端配置
 func (c *Client) SetConfig(conf *ClientConfig) (err error) {
 	c.mutex.Lock()
 	c.conf = conf
@@ -146,7 +146,7 @@ func (c *Client) SetConfig(conf *ClientConfig) (err error) {
 	return nil
 }
 
-// Use将全局拦截器附加到客户端。
+// Use Use将全局拦截器附加到客户端。
 // 例如:这是断路器或错误管理拦截器的正确位置。
 func (c *Client) Use(handlers ...grpc.UnaryClientInterceptor) *Client {
 	finalSize := len(c.handlers) + len(handlers)
@@ -160,7 +160,7 @@ func (c *Client) Use(handlers ...grpc.UnaryClientInterceptor) *Client {
 	return c
 }
 
-// UseOpt将全局rpc DialOption附加到客户端.
+// UseOpt 将全局 rpc DialOption 附加到客户端.
 func (c *Client) UseOpt(opts ...grpc.DialOption) *Client {
 	c.opts = append(c.opts, opts...)
 	return c
@@ -173,6 +173,7 @@ func (c *Client) cloneOpts() []grpc.DialOption {
 }
 
 func (c *Client) dial(ctx context.Context, target string, caller []string, opts ...grpc.DialOption) (conn *grpc.ClientConn, err error) {
+	// 克隆连接配置
 	dialOptions := c.cloneOpts()
 	if !c.conf.NonBlock {
 		dialOptions = append(dialOptions, grpc.WithBlock())

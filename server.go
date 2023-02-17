@@ -13,6 +13,7 @@ import (
 	"github.com/aluka-7/metacode"
 	"github.com/aluka-7/trace"
 	"github.com/aluka-7/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -29,15 +30,15 @@ var _abortIndex int8 = math.MaxInt8 / 2
 
 // 服务器配置信息
 type ServerConfig struct {
-	Network           string         `json:"network"`           // 网络为rpc监听网络，默认值为tcp
-	Addr              string         `json:"address"`           // 地址是rpc监听地址，默认值为0.0.0.0:9000
+	Network           string         `json:"network"`           // 网络为rpc监听网络，默认值为 tcp
+	Addr              string         `json:"address"`           // 地址是rpc监听地址，默认值为 0.0.0.0:9000
 	Timeout           utils.Duration `json:"timeout"`           // 超时是每个rpc调用的上下文超时。
-	IdleTimeout       utils.Duration `json:"idleTimeout"`       // IdleTimeout是一段持续时间，在这段时间内可以通过发送GoAway关闭空闲连接。 空闲持续时间是自最近一次未完成RPC的数量变为零或建立连接以来定义的。
-	MaxLifeTime       utils.Duration `json:"maxLife"`           // MaxLifeTime是连接通过发送GoAway关闭之前可能存在的最长时间的持续时间。 将向+/- 10％的随机抖动添加到MaxConnectionAge中以分散连接风暴.
-	ForceCloseWait    utils.Duration `json:"closeWait"`         // ForceCloseWait是MaxLifeTime之后的附加时间，在此之后将强制关闭连接。
-	KeepAliveInterval utils.Duration `json:"keepaliveInterval"` // 如果服务器没有看到任何活动，则KeepAliveInterval将在此时间段之后，对客户端进行ping操作以查看传输是否仍然有效。
-	KeepAliveTimeout  utils.Duration `json:"keepaliveTimeout"`  // 进行keepalive检查ping之后，服务器将等待一段时间的超时，并且即使在关闭连接后也看不到活动。
-	EnableLog         bool           `json:"enableLog"`         // 是否打开日记
+	IdleTimeout       utils.Duration `json:"idleTimeout"`       // IdleTimeout 是一段持续时间，在这段时间内可以通过发送 GoAway 关闭空闲连接。 空闲持续时间是自最近一次未完成RPC的数量变为零或建立连接以来定义的。
+	MaxLifeTime       utils.Duration `json:"maxLife"`           // MaxLifeTime 是连接通过发送GoAway关闭之前可能存在的最长时间的持续时间。 将向+/- 10％的随机抖动添加到MaxConnectionAge中以分散连接风暴.
+	ForceCloseWait    utils.Duration `json:"closeWait"`         // ForceCloseWait 是 MaxLifeTime 之后的附加时间，在此之后将强制关闭连接。
+	KeepAliveInterval utils.Duration `json:"keepaliveInterval"` // 如果服务器没有看到任何活动，则 KeepAliveInterval 将在此时间段之后，对客户端进行ping操作以查看传输是否仍然有效。
+	KeepAliveTimeout  utils.Duration `json:"keepaliveTimeout"`  // 进行 keepalive 检查 ping 之后，服务器将等待一段时间的超时，并且即使在关闭连接后也看不到活动。
+	EnableLog         bool           `json:"enableLog"`         // 是否打开日志
 }
 
 // Server是框架的服务器端实例，它包含RpcServer，拦截器和拦截器。
@@ -49,7 +50,7 @@ type Server struct {
 	handlers []grpc.UnaryServerInterceptor
 }
 
-//  handle为OpenTracing\Logging\LinkTimeout返回一个新的一元服务器拦截器。
+// handle为OpenTracing\Logging\LinkTimeout返回一个新的一元服务器拦截器。
 func (s *Server) handle() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, args *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		// 对于性能进行监测等等
@@ -276,7 +277,7 @@ func (s *Server) validate() grpc.UnaryServerInterceptor {
 	}
 }
 
-// RegisterValidation将验证功能添加到由键表示的验证者的验证者映射中
+// RegisterValidation 将验证功能添加到由键表示的验证者的验证者映射中
 // 注意:如果密钥已经存在,则先前的验证功能将被替换。
 // 注意:此方法不是线程安全的,因此应在进行任何验证之前先将它们全部注册
 func (s *Server) RegisterValidation(key string, fn validator.Func) error {
