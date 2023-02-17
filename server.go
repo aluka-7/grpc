@@ -28,7 +28,7 @@ import (
 
 var _abortIndex int8 = math.MaxInt8 / 2
 
-// 服务器配置信息
+// ServerConfig 服务器配置信息
 type ServerConfig struct {
 	Network           string         `json:"network"`           // 网络为rpc监听网络，默认值为 tcp
 	Addr              string         `json:"address"`           // 地址是rpc监听地址，默认值为 0.0.0.0:9000
@@ -41,7 +41,7 @@ type ServerConfig struct {
 	EnableLog         bool           `json:"enableLog"`         // 是否打开日志
 }
 
-// Server是框架的服务器端实例，它包含RpcServer，拦截器和拦截器。
+// Server 是框架的服务器端实例，它包含RpcServer，拦截器和拦截器。
 // 通过使用NewServer()创建Server的实例。
 type Server struct {
 	conf     *ServerConfig
@@ -105,7 +105,7 @@ func (s *Server) handle() grpc.UnaryServerInterceptor {
 	}
 }
 
-// 带有默认服务器拦截器的新的空白Server实例。
+// NewServer 带有默认服务器拦截器的新的空白Server实例。
 func NewServer(conf *ServerConfig, opt ...grpc.ServerOption) (s *Server) {
 	s = new(Server)
 	if err := s.SetConfig(conf); err != nil {
@@ -124,7 +124,7 @@ func NewServer(conf *ServerConfig, opt ...grpc.ServerOption) (s *Server) {
 	return
 }
 
-// 热重载服务器配置
+// SetConfig 热重载服务器配置
 func (s *Server) SetConfig(conf *ServerConfig) (err error) {
 	if conf.Addr == "" {
 		log.Warn().Msg("ServerConfig Addr is not empty")
@@ -161,12 +161,12 @@ func (s *Server) interceptor(ctx context.Context, req interface{}, args *grpc.Un
 	return s.handlers[0](ctx, req, args, chain)
 }
 
-// 返回用于注册服务的rpc服务器.
+// Server 返回用于注册服务的rpc服务器.
 func (s *Server) Server() *grpc.Server {
 	return s.server
 }
 
-// Use将全局拦截器附加到服务器.
+// Use 将全局拦截器附加到服务器.
 // 例如:这是速率限制器或错误管理拦截器的正确位置.
 func (s *Server) Use(handlers ...grpc.UnaryServerInterceptor) *Server {
 	finalSize := len(s.handlers) + len(handlers)
@@ -180,7 +180,7 @@ func (s *Server) Use(handlers ...grpc.UnaryServerInterceptor) *Server {
 	return s
 }
 
-// 运行create tcp侦听器,并启动goroutine为每个传入请求提供服务。
+// Run 运行create tcp侦听器,并启动goroutine为每个传入请求提供服务。
 // 除非调用Stop或GracefulStop,否则Run将返回非nil错误。
 func (s *Server) Run(addr string) error {
 	fmt.Printf("启动rpc监听地址: %s\n", addr)
@@ -193,7 +193,7 @@ func (s *Server) Run(addr string) error {
 	}
 }
 
-// RunUnix创建一个unix侦听器并启动goroutine来处理每个传入的请求.
+// RunUnix 创建一个unix侦听器并启动goroutine来处理每个传入的请求.
 // 除非调用Stop或GracefulStop,否则RunUnix将返回非nil错误.
 func (s *Server) RunUnix(file string) error {
 	fmt.Printf("启动rpc监听unix文件: %s\n", file)
@@ -206,7 +206,7 @@ func (s *Server) RunUnix(file string) error {
 	}
 }
 
-// 开始使用配置的listen addr创建一个新的goroutine运行服务器,如果发生任何错误,它将惊慌返回服务器本身.
+// Start 开始使用配置的listen addr创建一个新的goroutine运行服务器,如果发生任何错误,它将惊慌返回服务器本身.
 func (s *Server) Start() (*Server, error) {
 	if _, err := s.startWithAddr(); err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ func (s *Server) Start() (*Server, error) {
 	}
 }
 
-// StartWithAddr使用配置的监听地址创建一个新的goroutine运行服务器,如果发生任何错误,它将崩溃
+// StartWithAddr 使用配置的监听地址创建一个新的goroutine运行服务器,如果发生任何错误,它将崩溃
 // 返回服务器本身和实际的监听地址(如果配置的监听端口为零,则操作系统将分配一个未使用的端口)
 func (s *Server) StartWithAddr() (*Server, net.Addr, error) {
 	if addr, err := s.startWithAddr(); err != nil {
