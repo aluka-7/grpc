@@ -72,9 +72,3 @@ type ClientConfig struct {
   "enableLog":true
 }
 ```
-
-### 客户端连接地址:/system/base/rpc/client/9999
-
-```json
-127.0.0.1:9090
-```
